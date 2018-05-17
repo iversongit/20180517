@@ -1,0 +1,198 @@
+1、基本概念
+Django -- 完善完整高集成的框架
+flask -- '微'框架 (pip install flask),保持核心简单而易于扩展
+    丰富的第三方库 自身不含数据库抽象层微框架，database,templates需要自己去组装
+
+2、安装
+a.创建虚拟环境
+    1）virtualenv --no-site-packages flaskenv
+    2) cd flaskenv
+    3) cd Script
+b.启动虚拟环境
+    activate 
+c.安装flask
+    pip install flask
+
+3、运行flask
+python xxx.py --> 启动默认127.0.0.1:5000
+    
+
+4、运行(run)参数
+debug = True  -- 调试
+port = '8000'-- 端口
+host = '0.0.0.0' -- IP
+
+
+5、修改启动方式 
+pip install flask-script
+python hello.py runserver [,-h 0.0.0.0 -- IP] [,-p 8000 -- 端口][,-d -- debug模式] [-r -- 重载、重启]
+
+6、配置debug
+   方法同Django，不过需将manage.py换成应用的名称，如:hello.app
+   所跟参数前要增加标识，如: -h 0.0.0.0 -d -p 8000
+
+7、蓝图(用于管理url,规划url)
+pip install flask-blueprint
+a)初始化蓝图
+b)路由注册
+
+8、route规则
+Django
+    \(\d+)\
+    \<?P(\d+)>\
+flask
+    <converter:name>  -- 类型:名称  int float string
+    <name> -- 不写类型  默认为字符串(string)类型
+    int -- 整型
+    float -- 浮点型
+    path -- 路径('/'也是当做字符串返回)
+    uuid -- 订单编号  不重复
+
+9、request请求
+args -- GET请求，获取参数   ex:request.args.get('name')
+form -- POST请求，获取参数  ex:request.form.get('age')
+files -- 上传的file文件
+method -- 请求方式
+
+10、url_prefix='hello' -- 蓝图前缀，用于区分不同的蓝图
+
+11、response响应
+服务器自己创建，然后返回给客户端
+传入自己定义的状态码
+response = make_response('<h2>haha</h2>')
+response.set_cookie('ticket',ticket)
+return response,220
+
+12、session
+安装: pip install flask-session
+      pip install redis
+使用数据库:
+      SESSION_TYPE类型
+          redis
+          mongodb
+          memcached
+          sqlchemy
+
+13、cookie:同Django set_cookie delete_cookie
+
+14、跳转
+@bp.route('/redirect/') # 跳转方法
+def make_redirect():
+    # 第一种方法
+    # return redirect('hello/index/')
+    # 第二种方法
+    # first:蓝图名 indexing:蓝图下的方法 indexing已经和地址绑定在一起
+    return redirect(url_for('first.indexing'))  
+
+
+15、抛出、捕捉异常
+@bp.route('/makeabort/')
+def make_abort():
+    abort(404) # 抛出404异常
+    return '终结'
+
+@bp.errorhandler(404)  # 捕捉指定异常
+def get_error(exception):
+    return '捕捉异常: %s' % exception
+
+base_url path(request中的变量)
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+templates_dir = os.path.join(BASE_DIR,'templates')
+static_dir = os.path.join(BASE_DIR,'static')
+
+--------------------------------------- 20180516 ---------------------------------------------
+1、创建基础页面(base.html)，挖坑让后续页面继承并填坑
+block xxx  endblock
+
+2、加载css
+*在django中
+方法1）{% load static %}
+       <link rel="stylesheet" href="{% static 'css/index.css' %}">
+方法2）<link rel="stylesheet" href="/static/css/index.css">
+
+*在flask中
+方法1）<link rel="stylesheet" href="/static/css/index.css">
+方法2）<link rel="stylesheet" href="{{url_for('static',filename='css/index.css')}}">
+
+3、过滤器
+safe:渲染标签，将标签样式显示出来
+striptags:渲染之前去掉标签，只保留标签中的内容
+trim:去掉空格
+length:计算长度
+
+第一个字母{{ i| first }}
+最后一个字母{{ i | last }}
+小写{{ i | lower }}
+大写{{ i | upper}}
+首字母大写{{ i | capitalize }}
+
+4、数据库
+pip install flask-sqlalchemy
+pip install pymysql
+
+primary_key: 指定主键
+autoincrement:自增
+unique: 唯一、独一无二
+default:默认值
+Integer:整型
+String:字符串
+
+__tablename__: 指定数据库表名称
+
+# 使用数据库前进行用户、密码、端口等相关信息的配置
+数据库名称://用户名:密码@主机名:端口号/数据库名称
+SQLALCHEMY_DATABASE_URI='mysql+pymysql://root:123456@localhost:3306/flask3'
+
+# SQLALCHEMY_TRACK_MODIFICATIONS -- 如果设置成 True (默认情况)，
+# Flask-SQLAlchemy 将会追踪对象的修改并且发送信号
+# 这需要额外的内存， 如果不必要的可以禁用它
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+附：
+事务 -- 原子性、一致性、隔离性、持久性  
+
+pip intall -r install.txt -- 一次性安装install.txt中罗列的所有包
+-----------------------------------------  20180517 -------------------------------------------
+1、添加多条学生信息
+s_list = [学生对象1，学生对象2, ......]
+db.session.add_all(s_list)
+
+
+2、运算符
+filter(模型名.字段.运算符('xxx'))
+filter(模型名.字段 运算符 值)
+
+__le__ 小于等于
+__lt__ 小于
+__gt__ 大于
+__ge__ 大于等于
+
+in_ 在范围内
+order_by 排序
+limit 截取几个信息
+offset 跳过几个信息
+get 获取主键对应的信息(无需添加关键字)
+
+and_ 与条件
+or_ 或条件
+not_ 非条件
+
+3、分页
+paginate对象
+    pages 总页数
+    page 当前页
+    total 信息总条数
+    has_prev 是否有上页
+    has_next 是否有下页
+    prev_num 上一页
+    next_num 下一页
+    iter_pages() 迭代地呈现所有页 [1，2, 3，4，5]
+
+4、OneToMany
+在one的model中定义relationship字段
+    students = db.relationship('Student',backref='stu',lazy=True)
+在many的model中定义外键
+    s_g = db.Column(db.Integer,db.ForeignKey("grade.g_id"),nullable=True)
+1）通过one找many，one的对象.students，结果为many的对象(多个)
+2）通过many找one，many的对象.stu(backref)，结果为one的对象(一个)
